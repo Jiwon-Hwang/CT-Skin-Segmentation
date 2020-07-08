@@ -1,0 +1,10 @@
+﻿Build started 2020-07-08 오후 2:00:20.
+     1>Project "C:\Users\Ryu\Documents\Visual Studio 2012\Projects\CTSkinSegmentation\CTSkinSegmentation\CTSkinSegmentation.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Ryu\Documents\Visual Studio 2012\Projects\CTSkinSegmentation\Debug\CTSkinSegmentation.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\opencv\build\x86\vc11\lib opencv_calib3d249d.lib opencv_contrib249d.lib opencv_core249d.lib opencv_features2d249d.lib opencv_flann249d.lib opencv_gpu249d.lib opencv_highgui249d.lib opencv_imgproc249d.lib opencv_legacy249d.lib opencv_ml249d.lib opencv_nonfree249d.lib opencv_objdetect249d.lib opencv_ocl249d.lib opencv_photo249d.lib opencv_stitching249d.lib opencv_superres249d.lib opencv_ts249d.lib opencv_video249d.lib opencv_videostab249d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Ryu\Documents\Visual Studio 2012\Projects\CTSkinSegmentation\Debug\CTSkinSegmentation.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Ryu\Documents\Visual Studio 2012\Projects\CTSkinSegmentation\Debug\CTSkinSegmentation.lib" /MACHINE:X86 Debug\Source.obj
+         CTSkinSegmentation.vcxproj -> C:\Users\Ryu\Documents\Visual Studio 2012\Projects\CTSkinSegmentation\Debug\CTSkinSegmentation.exe
+     1>Done Building Project "C:\Users\Ryu\Documents\Visual Studio 2012\Projects\CTSkinSegmentation\CTSkinSegmentation\CTSkinSegmentation.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.80
