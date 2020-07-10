@@ -11,10 +11,11 @@ using namespace cv;
 
 
 int main(){
-	Mat img = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png");
-	imshow("B0002", img);
-	waitKey(0);
-	destroyAllWindows();
+	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png");
+	Mat img_copy = ori.clone();
+	Mat filtered;
+	bilateralFilter(img_copy, filtered, -1, 15, 15); //(src, dst, d(필터링 수행할 지름), sigmaColor(색 공간), sigmaSpace(거리 공간))
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_filtered.png", filtered);
 
 	return 0;
 }
