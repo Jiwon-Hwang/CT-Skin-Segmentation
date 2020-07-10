@@ -11,7 +11,7 @@ using namespace cv;
 
 
 int main(){
-	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png");
+	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png", 0);
 	Mat img_copy = ori.clone();
 
 	//1. Bilateral Filtering (noise filtering)
