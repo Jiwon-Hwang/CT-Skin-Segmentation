@@ -11,6 +11,7 @@ using namespace cv;
 
 
 int main(){
+	//0. Absolute Path setting ==> 추후 경로값 저장해두기
 	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png", 0);
 	Mat img_copy = ori.clone();
 
@@ -21,8 +22,13 @@ int main(){
 
 	//2. Otsu's Thresholding
 	Mat otsu;
-	threshold(img_copy, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU);
+	threshold(img_copy, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU); 
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_otsu.png", otsu);
+
+	//3. watershed
+	Mat markers = Mat::zeros(img_copy.size(), CV_32S);
+	watershed(img_copy, markers); //3채널만 가능...(error) ==> 3채널로 변환 or SRG로 수행
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_watershed.png", markers);
 
 	return 0;
 }
