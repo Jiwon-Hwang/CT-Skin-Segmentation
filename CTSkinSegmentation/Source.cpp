@@ -17,12 +17,12 @@ int main(){
 	//1. Bilateral Filtering (noise filtering)
 	Mat filtered;
 	bilateralFilter(img_copy, filtered, -1, 15, 15); //(src, dst, d(필터링 수행할 지름), sigmaColor(색 공간), sigmaSpace(거리 공간))
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_filtered.png", filtered);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_1_filtered.png", filtered);
 
 	//2. Otsu's Thresholding
 	Mat otsu;
 	threshold(img_copy, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU); 
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_otsu.png", otsu);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_2_otsu.png", otsu);
 
 	/*
 	//3. watershed : marker구하기(with. Erosion, Dilation, connectedComponents) -> watershed
@@ -31,11 +31,19 @@ int main(){
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_watershed.png", markers);
 	*/
 
-	//3. Floodfil
-	Mat floodfill = otsu.clone();
-	floodFill(floodfill, Point(0,0), Scalar(255)); //from point (0,0), fill with 255
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_floodfill.png", floodfill);
+	//3. Morphology_preprocessing(remove outlines)
+	Mat pre = otsu.clone();
+	Mat mask = getStructuringElement(MORPH_RECT, Size(3,3), Point(1,1));
+	erode(otsu, pre, mask, Point(-1, -1), 3);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_3_pre.png", pre);
 
+
+	//3. Floodfil
+	Mat floodfill = pre.clone();
+	floodFill(floodfill, Point(0,0), Scalar(255)); //from point (0,0), fill with 255
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_4_floodfill.png", floodfill);
+
+	/*
 	//4. Morphology
 	Mat eroded, dilated, opened, closed;
 	Mat mask = getStructuringElement(MORPH_RECT, Size(3,3), Point(1,1));
@@ -43,7 +51,7 @@ int main(){
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_eroded.png", eroded);
 	dilate(floodfill, dilated, mask, Point(-1,-1), 3);
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_dilated.png", dilated);
-
+	*/
 
 	return 0;
 }
