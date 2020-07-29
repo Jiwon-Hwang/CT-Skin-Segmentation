@@ -28,7 +28,6 @@ int main(){
 	//3. watershed : marker구하기(with. Erosion, Dilation, connectedComponents) -> watershed
 	//Mat markers = Mat::zeros(img_copy.size(), CV_32S);
 	watershed(img_copy, markers); //3채널만 가능...(error) ==> 3채널로 변환 or SRG로 수행
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_watershed.png", markers);
 	*/
 
 	//3. Morphology_preprocessing(remove outlines with erode)
@@ -38,20 +37,21 @@ int main(){
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_3_pre.png", pre);
 
 
-	//4. Floodfil
-	Mat floodfill = pre.clone();
-	floodFill(floodfill, Point(0,0), Scalar(0)); //from point (0,0), fill with 255
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_4_floodfill.png", floodfill);
+	//4. Floodfill (combine background to select hole in body)
+	Mat hole = pre.clone();
+	floodFill(hole, Point(0,0), Scalar(255));
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_4_hole.png", hole);
 
-	/*
-	//4. Morphology
-	Mat eroded, dilated, opened, closed;
-	Mat mask = getStructuringElement(MORPH_RECT, Size(3,3), Point(1,1));
-	erode(floodfill, eroded, mask, Point(-1,-1), 3);
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_eroded.png", eroded);
-	dilate(floodfill, dilated, mask, Point(-1,-1), 3);
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_dilated.png", dilated);
-	*/
+	//4-1. Invert hole
+	Mat hole_inv;
+	bitwise_not(hole, hole_inv);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_4-1_hole_inv.png", hole_inv);
+
+	//5. bitwise OR (combine pre(bone) and hole)
+	Mat bitor = (pre | hole_inv);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_5_bitor.png", bitor);
+
+
 
 	return 0;
 }
