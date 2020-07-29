@@ -18,27 +18,27 @@ void Overlay(Mat &back, Mat front, int rows, int cols){
 			if (front.at<uchar>(i, j) == 0) continue;
 
 			//linear interpolation
-			back.at<Vec3b>(i, j)[0] /= 2; //b
-			back.at<Vec3b>(i, j)[1] /= 2; //g
-			back.at<Vec3b>(i, j)[2] = back.at<Vec3b>(i, j)[2] * 0.5 + 255 * 0.5; //r
+			back.at<Vec3b>(i, j)[0] = back.at<Vec3b>(i, j)[0] * 0.7 + 255 * 0; //b
+			back.at<Vec3b>(i, j)[1] = back.at<Vec3b>(i, j)[1] * 0.7 + 255 * 0; //g
+			back.at<Vec3b>(i, j)[2] = back.at<Vec3b>(i, j)[2] * 0.7 + 255 * 0.3; //r
 		}
 	}
 }
 
 int main(){
 	//0. Absolute Path setting ==> 추후 경로값 저장해두기
-	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0067.png", 0);
+	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png", 0);
 	Mat img_copy = ori.clone();
 
 	//1. Bilateral Filtering (noise filtering)
 	Mat filtered;
 	bilateralFilter(img_copy, filtered, -1, 15, 15); //(src, dst, d(필터링 수행할 지름), sigmaColor(색 공간), sigmaSpace(거리 공간))
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_1_filtered.png", filtered);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_1_filtered.png", filtered);
 
 	//2. Otsu's Thresholding
 	Mat otsu;
 	threshold(img_copy, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU); 
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_2_otsu.png", otsu);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_2_otsu.png", otsu);
 
 	/*
 	//3. watershed : marker구하기(with. Erosion, Dilation, connectedComponents) -> watershed
@@ -47,29 +47,31 @@ int main(){
 	*/
 
 	//3. Morphology_preprocessing(remove outlines with erode)
-	Mat pre;
+	Mat pre_erode, pre_dilate;
 	Mat mask = getStructuringElement(MORPH_RECT, Size(3,3), Point(1,1));
-	erode(otsu, pre, mask, Point(-1, -1), 10); // 6회이상 반복 시 완전히 사라짐...(0067)
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_3_pre.png", pre);
+	erode(otsu, pre_erode, mask, Point(-1, -1), 6); // 6회이상 반복 시 완전히 사라짐...(0002)
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_3-1_pre_erode.png", pre_erode);
+	dilate(pre_erode, pre_dilate, mask, Point(-1, -1), 6);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_3-2_pre_dilate.png", pre_dilate);
 
 
 	//4. Floodfill (combine background to select hole in body)
-	Mat hole = pre.clone();
+	Mat hole = pre_dilate.clone();
 	floodFill(hole, Point(0,0), Scalar(255));
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_4_hole.png", hole);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_4_hole.png", hole);
 
 	//4-1. Invert hole
 	Mat hole_inv;
 	bitwise_not(hole, hole_inv);
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_4-1_hole_inv.png", hole_inv);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_4-1_hole_inv.png", hole_inv);
 
 	//5. bitwise OR (combine pre(bone) and hole)
-	Mat bitor = (pre | hole_inv);
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_5_bitor.png", bitor);
+	Mat bitor = (pre_dilate | hole_inv);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_5_bitor.png", bitor);
 
 
 	//6. overay
-	Mat ori3C = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0067.png");
+	Mat ori3C = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png");
 	Mat back = ori3C.clone();  //3 channel
 	Mat front = bitor.clone(); //1 channel
 	int rows = back.rows;
@@ -77,7 +79,7 @@ int main(){
 	//printf("ori channels : %d\n", ori.channels());
 	//printf("seg channels : %d\n", bitor.channels());
 	Overlay(back, front, rows, cols);
-	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_6_overlay.png", back);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_6_overlay.png", back);
 
 	//7. dilate (restore to original size)
 
