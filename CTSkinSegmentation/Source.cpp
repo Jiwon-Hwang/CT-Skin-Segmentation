@@ -33,7 +33,7 @@ int main(){
 
 	//3. Floodfil
 	Mat floodfill = otsu.clone();
-	floodFill(floodfill, Point(0,16), Scalar(0)); //from point (0,0)
+	floodFill(floodfill, Point(0,0), Scalar(255)); //from point (0,0)
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_floodfill.png", floodfill);
 
 	
