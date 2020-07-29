@@ -69,10 +69,13 @@ int main(){
 
 
 	//6. overay
-	Mat back = ori.clone();  //3 channel
+	Mat ori3C = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0067.png");
+	Mat back = ori3C.clone();  //3 channel
 	Mat front = bitor.clone(); //1 channel
 	int rows = back.rows;
 	int cols = back.cols;
+	//printf("ori channels : %d\n", ori.channels());
+	//printf("seg channels : %d\n", bitor.channels());
 	Overlay(back, front, rows, cols);
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_6_overlay.png", back);
 
