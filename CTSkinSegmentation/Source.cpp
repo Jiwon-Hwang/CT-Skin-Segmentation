@@ -31,16 +31,16 @@ int main(){
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_watershed.png", markers);
 	*/
 
-	//3. Morphology_preprocessing(remove outlines)
-	Mat pre = otsu.clone();
+	//3. Morphology_preprocessing(remove outlines with erode)
+	Mat pre;
 	Mat mask = getStructuringElement(MORPH_RECT, Size(3,3), Point(1,1));
-	erode(otsu, pre, mask, Point(-1, -1), 3);
+	erode(otsu, pre, mask, Point(-1, -1), 10); // 6회이상 반복 시 완전히 사라짐...(0067)
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_3_pre.png", pre);
 
 
-	//3. Floodfil
+	//4. Floodfil
 	Mat floodfill = pre.clone();
-	floodFill(floodfill, Point(0,0), Scalar(255)); //from point (0,0), fill with 255
+	floodFill(floodfill, Point(0,0), Scalar(0)); //from point (0,0), fill with 255
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_4_floodfill.png", floodfill);
 
 	/*
