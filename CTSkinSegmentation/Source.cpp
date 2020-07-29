@@ -9,6 +9,22 @@
 using namespace std; //STL(라이브러리): std 네임스페이스 소속
 using namespace cv;
 
+void Overlay(Mat &back, Mat front, int rows, int cols);
+
+
+void Overlay(Mat &back, Mat front, int rows, int cols){
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			if (front.at<uchar>(i, j) == 0) continue;
+
+			//linear interpolation
+			back.at<Vec3b>(i, j)[0] /= 2; //b
+			back.at<Vec3b>(i, j)[1] /= 2; //g
+			back.at<Vec3b>(i, j)[2] = back.at<Vec3b>(i, j)[2] * 0.5 + 255 * 0.5; //r
+		}
+	}
+}
+
 int main(){
 	//0. Absolute Path setting ==> 추후 경로값 저장해두기
 	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0067.png", 0);
@@ -51,6 +67,16 @@ int main(){
 	Mat bitor = (pre | hole_inv);
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_5_bitor.png", bitor);
 
+
+	//6. overay
+	Mat back = ori.clone();  //3 channel
+	Mat front = bitor.clone(); //1 channel
+	int rows = back.rows;
+	int cols = back.cols;
+	Overlay(back, front, rows, cols);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_6_overlay.png", back);
+
+	//7. dilate (restore to original size)
 
 
 	return 0;
