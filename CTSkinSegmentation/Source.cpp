@@ -33,10 +33,16 @@ int main(){
 
 	//3. Floodfil
 	Mat floodfill = otsu.clone();
-	floodFill(floodfill, Point(0,0), Scalar(255)); //from point (0,0)
+	floodFill(floodfill, Point(0,0), Scalar(255)); //from point (0,0), fill with 255
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_floodfill.png", floodfill);
 
-	
+	//4. Morphology
+	Mat eroded, dilated, opened, closed;
+	Mat mask = getStructuringElement(MORPH_RECT, Size(3,3), Point(1,1));
+	erode(floodfill, eroded, mask, Point(-1,-1), 3);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_eroded.png", eroded);
+	dilate(floodfill, dilated, mask, Point(-1,-1), 3);
+	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0067_dilated.png", dilated);
 
 
 	return 0;
