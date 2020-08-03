@@ -64,6 +64,8 @@ int main(){
 		string combpath_str = path_str + "\\" + f_str;
 		
 		Mat ori = imread(combpath_str, 0); //2channel
+		int rows = ori.rows;
+		int cols = ori.cols;
 		Mat img_copy = ori.clone();
 	
 		//1. Bilateral Filtering (noise filtering)
@@ -89,6 +91,7 @@ int main(){
 		//4. Floodfill (combine background to select hole in body)
 		Mat hole = pre_dilate.clone();
 		floodFill(hole, Point(0,0), Scalar(255));
+		floodFill(hole, Point(cols-1, rows-1), Scalar(255)); // for 0010~0047 seg error clear
 		//imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_4_hole.png", hole);
 
 		//4-1. Invert hole
@@ -105,8 +108,6 @@ int main(){
 		Mat ori3C = imread(combpath_str);
 		Mat back = ori3C.clone();  //3 channel
 		Mat front = bitor.clone(); //1 channel
-		int rows = back.rows;
-		int cols = back.cols;
 		Overlay(back, front, rows, cols);
 		imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\test\\"+f_str, back);
 	}
