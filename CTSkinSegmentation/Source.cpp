@@ -109,7 +109,7 @@ int main(){
 		Mat back = ori3C.clone();  //3 channel
 		Mat front = bitor.clone(); //1 channel
 		Overlay(back, front, rows, cols);
-		imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\test\\"+f_str, back);
+		imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\final\\"+f_str, back);
 	}
 		
 
