@@ -74,7 +74,7 @@ int main(){
 
 		//2. Otsu's Thresholding
 		Mat otsu;
-		threshold(img_copy, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU); 
+		threshold(filtered, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU); 
 
 		//3. Morphology_preprocessing(remove outlines with erode)
 		Mat pre_erode, pre_dilate;
@@ -85,16 +85,16 @@ int main(){
 		//4. Floodfill (combine background to select hole in body)
 		Mat hole = pre_dilate.clone();
 		floodFill(hole, Point(0,0), Scalar(255));
-		floodFill(hole, Point(cols-1, rows-1), Scalar(255)); // for 0010~0047 seg error clear
+		floodFill(hole, Point(cols-1, rows-1), Scalar(255)); 
 
-		//4-1. Invert hole
+		//5. Invert hole
 		Mat hole_inv;
 		bitwise_not(hole, hole_inv);
 
-		//5. bitwise OR (combine pre(bone) and hole)
+		//6. bitwise OR (combine pre(bone) and hole)
 		Mat bitor = (pre_dilate | hole_inv);
 
-		//6. overay
+		//7. overlay
 		Mat ori3C = imread(combpath_str);
 		Mat back = ori3C.clone();  //3 channel
 		Mat front = bitor.clone(); //1 channel
