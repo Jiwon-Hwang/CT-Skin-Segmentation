@@ -1,15 +1,40 @@
-//헤더파일들 include
 #include <opencv2/opencv.hpp> 
 #include <opencv2/highgui/highgui.hpp>
-#include <iostream> //cout, cin 함수 사용하기 위해 (iostream 클래스 내의 객체)
+#include <iostream> 
 #include "stdafx.h" //precompiled header (미리 컴파일 시켜주는 역할, 전체적으로 빌드 시간 감소)
 
-//namespace : 식별자(변수, 함수명 등)의 소속 공간(name space), 같은 이름이어도 다르게 구분 가능하게 해줌(충돌 방지), 접두어 생략 가능
-//*'네임스페이스' 'std'에 cout, cin같은 함수가 소속되어있고, 'iostream'이라는 '헤더파일'에 이 내용들이 작성되어 있음
-using namespace std; //STL(라이브러리): std 네임스페이스 소속
+#include <Windows.h>
+#include <string>
+#include <vector>
+
+using namespace std;
 using namespace cv;
 
+typedef wstring str_t;
+
+vector<str_t> get_files_in_floder(str_t folder, str_t file_type = L"*.*");
+
 void Overlay(Mat &back, Mat front, int rows, int cols);
+
+
+vector<str_t> get_files_in_floder(str_t folder, str_t file_type){
+	vector<str_t> names;
+	wchar_t search_path[200];
+	wsprintf(search_path, L"%s/%s", folder.c_str(), file_type.c_str());
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = ::FindFirstFile(search_path, &fd);
+	if(hFind != INVALID_HANDLE_VALUE){
+		do{
+			//read all (real) files in current folder
+			//, delete '!' read other 2 default folder. and ..
+			if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
+				names.push_back(fd.cFileName);
+			}
+		}while(::FindNextFile(hFind, &fd));
+		::FindClose(hFind);
+	}
+	return names;
+}
 
 
 void Overlay(Mat &back, Mat front, int rows, int cols){
@@ -26,8 +51,11 @@ void Overlay(Mat &back, Mat front, int rows, int cols){
 }
 
 int main(){
+	vector<str_t> files = get_files_in_floder(L"C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default", L"*.png");
+	//wcout<<files[0]<<L"\n"<< files.size()<<L"\n"; //==> Breast0002.png, 159
+	
 	//0. Absolute Path setting ==> 추후 경로값 저장해두기
-	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png", 0);
+	Mat ori = imread("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default\\Breast0002.png", 0); //2channel
 	Mat img_copy = ori.clone();
 
 	//1. Bilateral Filtering (noise filtering)
@@ -40,11 +68,6 @@ int main(){
 	threshold(img_copy, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU); 
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_2_otsu.png", otsu);
 
-	/*
-	//3. watershed : marker구하기(with. Erosion, Dilation, connectedComponents) -> watershed
-	//Mat markers = Mat::zeros(img_copy.size(), CV_32S);
-	watershed(img_copy, markers); //3채널만 가능...(error) ==> 3채널로 변환 or SRG로 수행
-	*/
 
 	//3. Morphology_preprocessing(remove outlines with erode)
 	Mat pre_erode, pre_dilate;
@@ -76,13 +99,10 @@ int main(){
 	Mat front = bitor.clone(); //1 channel
 	int rows = back.rows;
 	int cols = back.cols;
-	//printf("ori channels : %d\n", ori.channels());
-	//printf("seg channels : %d\n", bitor.channels());
 	Overlay(back, front, rows, cols);
 	imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\Breast0002_6_overlay.png", back);
 
-	//7. dilate (restore to original size)
-
+	
 
 	return 0;
 }
