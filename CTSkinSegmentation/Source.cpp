@@ -38,9 +38,18 @@ Mat DcmToMat(const char *path){
 				//아래 형식 자주 쓰이므로 외우기!
 				for(int row=0; row< height; row++) {
 					for(int col=0; col< width; col++) {
-						int idx = row*width + col;
+						
+						int idx = row*width + col; // 2차원배열을 1차원 배열처럼 접근
 						//temp.at<uchar>(row, col) = pixelData[idx]; ==> at함수 : 가독성 good, but 시간 오래걸림 (효율x)
 						temp.data[idx] = (uchar) pixelData[idx]; // ==> 이렇게 직접 메모리에 접근하는 방식으로 사용하기!
+						
+
+						/* 이게 제일 정확한 방법! (dicom image와 mat 각각 픽셀 다르게 인덱스로 접근해야됨!)
+						int idx_dicomimage = row*width + col;
+						int idx_mat = row*temp.cols + col;
+
+						temp.data[idx_mat] = (uchar) pixelData[idx_dicomimage];
+						*/
 					}
 				}
 				
@@ -77,7 +86,7 @@ vector<string> get_files_in_floder(str_t folder, str_t file_type){
 	return names;
 }
 
-
+// at 수정하기!
 void Overlay(Mat &back, Mat front, int rows, int cols){
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < cols; j++) {
