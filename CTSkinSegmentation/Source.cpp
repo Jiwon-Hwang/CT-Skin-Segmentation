@@ -3,26 +3,34 @@
 #include <iostream> 
 #include "stdafx.h" //precompiled header (미리 컴파일 시켜주는 역할, 전체적으로 빌드 시간 감소)
 
+#include "dcmtk/dcmimgle/dcmimage.h"
+#include "dcmtk/config/osconfig.h" 
+#include "dcmtk/dcmdata/dctk.h"
+
 #include <Windows.h>
 #include <string>
 #include <vector>
+#include <typeinfo>
 
 using namespace std;
 using namespace cv;
 
 typedef wstring str_t;
 
-vector<str_t> get_files_in_floder(str_t folder, str_t file_type = L"*.*"); // L : wchar_t의 wide character.. 접두어..
+vector<string> get_files_in_floder(str_t folder, str_t file_type = L"*.*"); // L : wchar_t의 wide character.. 접두어..
 
 void Overlay(Mat &back, Mat front, int rows, int cols);
 
 
-vector<str_t> get_files_in_floder(str_t folder, str_t file_type){
-	vector<str_t> names;
-	wchar_t search_path[200];
-	wsprintf(search_path, L"%s/%s", folder.c_str(), file_type.c_str());
+vector<string> get_files_in_floder(str_t folder, str_t file_type){
+	vector<string> names;
+	//wchar_t search_path[200];
+	//wsprintf(search_path, L"%s/%s", folder.c_str(), file_type.c_str());
+	char search_path[200];
+	sprintf(search_path, "%s\\%s\\*.*", folder.c_str(), file_type.c_str());
+
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = ::FindFirstFile(search_path, &fd);
+	HANDLE hFind = FindFirstFile(search_path, &fd);
 	if(hFind != INVALID_HANDLE_VALUE){
 		do{
 			//read all (real) files in current folder
@@ -50,8 +58,28 @@ void Overlay(Mat &back, Mat front, int rows, int cols){
 	}
 }
 
+
+
 int main(){
-	str_t path = L"C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_default";
+	DicomImage *image = new DicomImage("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\CT0002.dcm");
+	if (image != NULL){
+		if (image->getStatus() == EIS_Normal){ //normal, no error (image status code)
+			Uint8 *pixelData = (Uint8 *)(image->getOutputData(8 /*bits per sample*/));
+			if (pixelData != NULL){ //cout << "type is : " << typeid(pixelData).name() << '\n'; //unsigned char * __ptr64
+				/* do something useful with the pixel data */
+				Mat temp = Mat(512, 512, CV_8UC1 );
+				temp.data = pixelData; // pixel data to Mat
+				//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\test.png", temp);
+			}
+		}
+		else{
+			cout << "Error: cannot load DICOM image (" << DicomImage::getString(image->getStatus()) << ")" << endl;
+		}
+	}
+	delete image;
+
+	/*
+	str_t path = L"C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
 	vector<str_t> files = get_files_in_floder(path, L"*.png");
 	//wcout<<files[0]<<L"\n"<< files.size()<<L"\n"; //==> Breast0002.png, 159
 	
@@ -101,7 +129,7 @@ int main(){
 		Overlay(back, front, rows, cols);
 		imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\final\\"+f_str, back);
 	}
-		
+	*/
 
 	return 0;
 }
