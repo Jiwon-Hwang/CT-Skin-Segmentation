@@ -31,8 +31,19 @@ Mat DcmToMat(const char *path){
 			Uint8 *pixelData = (Uint8 *)(image->getOutputData(8)); //bits per sample ==> Q. short(16bit)로..? (Uint8 : unsigned char.. 0~255.. 8bit)
 			if (pixelData != NULL){ //cout << "type is : " << typeid(pixelData).name() << '\n'; //unsigned char * __ptr64
 				// do something useful with the pixel data //
-				Mat temp = Mat(512, 512, CV_8UC1);
-				temp.data = pixelData; // pixel data to Mat
+
+				Mat temp = Mat(width, height, CV_8UC1);
+				//temp.data = pixelData; // pixel data to Mat
+
+				//아래 형식 자주 쓰이므로 외우기!
+				for(int row=0; row< height; row++) {
+					for(int col=0; col< width; col++) {
+						int idx = row*width + col;
+						//temp.at<uchar>(row, col) = pixelData[idx]; ==> at함수 : 가독성 good, but 시간 오래걸림 (효율x)
+						temp.data[idx] = (uchar) pixelData[idx]; // ==> 이렇게 직접 메모리에 접근하는 방식으로 사용하기!
+					}
+				}
+				
 				delete image;
 				return temp;
 			}
