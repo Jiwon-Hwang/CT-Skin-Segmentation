@@ -17,9 +17,29 @@ using namespace cv;
 
 typedef wstring str_t;
 
+Mat DcmToMat(const char *path);
 vector<string> get_files_in_floder(str_t folder, str_t file_type = L"*.*"); // L : wchar_t의 wide character.. 접두어..
-
 void Overlay(Mat &back, Mat front, int rows, int cols);
+
+
+Mat DcmToMat(const char *path){
+	DicomImage *image = new DicomImage(path); // string(x) -> const char * 형으로 바꾸니까 error clear
+	if (image != NULL){
+		if (image->getStatus() == EIS_Normal){ //normal, no error (image status code)
+			Uint8 *pixelData = (Uint8 *)(image->getOutputData(8)); //bits per sample ==> Q. short(16bit)로..? (Uint8 : unsigned char.. 0~255.. 8bit)
+			if (pixelData != NULL){ //cout << "type is : " << typeid(pixelData).name() << '\n'; //unsigned char * __ptr64
+				// do something useful with the pixel data //
+				Mat temp = Mat(512, 512, CV_8UC1);
+				temp.data = pixelData; // pixel data to Mat
+				delete image;
+				return temp;
+			}
+		}
+		else{
+			cout << "Error: cannot load DICOM image (" << DicomImage::getString(image->getStatus()) << ")" << endl;
+		}
+	}
+}
 
 
 vector<string> get_files_in_floder(str_t folder, str_t file_type){
@@ -61,37 +81,20 @@ void Overlay(Mat &back, Mat front, int rows, int cols){
 
 
 int main(){
-	DicomImage *image = new DicomImage("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\CT0002.dcm");
-	if (image != NULL){
-		if (image->getStatus() == EIS_Normal){ //normal, no error (image status code)
-			Uint8 *pixelData = (Uint8 *)(image->getOutputData(8 /*bits per sample*/));
-			if (pixelData != NULL){ //cout << "type is : " << typeid(pixelData).name() << '\n'; //unsigned char * __ptr64
-				/* do something useful with the pixel data */
-				Mat temp = Mat(512, 512, CV_8UC1 );
-				temp.data = pixelData; // pixel data to Mat
-				//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\test.png", temp);
-			}
-		}
-		else{
-			cout << "Error: cannot load DICOM image (" << DicomImage::getString(image->getStatus()) << ")" << endl;
-		}
-	}
-	delete image;
-
-	/*
 	str_t path = L"C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
-	vector<str_t> files = get_files_in_floder(path, L"*.png");
+	vector<string> files = get_files_in_floder(path, L"*.dcm");
 	//wcout<<files[0]<<L"\n"<< files.size()<<L"\n"; //==> Breast0002.png, 159
 	
 	for (auto f : files){
 		//0. Absolute Path setting
 		string f_str, path_str;
-		f_str.assign(f.begin(), f.end()); // wstring(str_t) to string
+		f_str.assign(f.begin(), f.end()); // wstring(str_t) to string ==> 이제 이거 변환 해줄 필요 없을 듯..?
 		path_str.assign(path.begin(), path.end()); 
 
 		string combpath_str = path_str + "\\" + f_str;
 		
-		Mat ori = imread(combpath_str, 0); //2channel
+		//Mat ori = imread(combpath_str, 0); //2channel
+		Mat ori = DcmToMat(combpath_str.c_str()); // Q. 몇채널?
 		int rows = ori.rows;
 		int cols = ori.cols;
 		Mat img_copy = ori.clone();
@@ -127,9 +130,8 @@ int main(){
 		Mat back = ori3C.clone();  //3 channel
 		Mat front = bitor.clone(); //1 channel
 		Overlay(back, front, rows, cols);
-		imwrite("C:\\Users\\Ryu\\Desktop\\200707_CTSkinSegmentation_SRC\\img_result\\final\\"+f_str, back);
+		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f_str, back);
 	}
-	*/
 
 	return 0;
 }
