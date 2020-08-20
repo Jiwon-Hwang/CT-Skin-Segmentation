@@ -24,6 +24,8 @@ void Overlay(Mat &back, Mat front, int rows, int cols);
 
 Mat DcmToMat(const char *path){
 	DicomImage *image = new DicomImage(path); // string(x) -> const char * 형으로 바꾸니까 error clear
+	const int width = (int)(image->getWidth());
+	const int height = (int)(image->getHeight());
 	if (image != NULL){
 		if (image->getStatus() == EIS_Normal){ //normal, no error (image status code)
 			Uint8 *pixelData = (Uint8 *)(image->getOutputData(8)); //bits per sample ==> Q. short(16bit)로..? (Uint8 : unsigned char.. 0~255.. 8bit)
@@ -81,6 +83,9 @@ void Overlay(Mat &back, Mat front, int rows, int cols){
 
 
 int main(){
+	Mat ori = DcmToMat("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\CT0002.dcm");
+	imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\test.png", ori);
+	/*
 	str_t path = L"C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
 	vector<string> files = get_files_in_floder(path, L"*.dcm");
 	//wcout<<files[0]<<L"\n"<< files.size()<<L"\n"; //==> Breast0002.png, 159
@@ -132,6 +137,6 @@ int main(){
 		Overlay(back, front, rows, cols);
 		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f_str, back);
 	}
-
+	*/
 	return 0;
 }
