@@ -12,17 +12,21 @@
 #include <vector>
 #include <typeinfo>
 
+#include <strsafe.h>
+#define MAX_PATH 260
+
 using namespace std;
 using namespace cv;
 
 typedef wstring str_t;
 
 Mat DcmToMat(const char *path);
-vector<string> get_files_in_floder(str_t folder, str_t file_type = L"*.*"); // L : wchar_t의 wide character.. 접두어..
+vector<string> get_files_in_floder(TCHAR *folder); // L : wchar_t의 wide character.. 접두어..
 void Overlay(Mat &back, Mat front, int rows, int cols);
 
 
 Mat DcmToMat(const char *path){
+	//cout<<"hi!"<<'\n'; // 이 함수로 들어오지도 않음.. ..?
 	DicomImage *image = new DicomImage(path); // string(x) -> const char * 형으로 바꾸니까 error clear
 	const int width = (int)(image->getWidth());
 	const int height = (int)(image->getHeight());
@@ -33,7 +37,7 @@ Mat DcmToMat(const char *path){
 				// do something useful with the pixel data //
 
 				Mat temp = Mat(width, height, CV_8UC1);
-				//temp.data = pixelData; // pixel data to Mat
+				//temp.data = pixelData; // pixel data to Mat ==> cause error!!
 
 				//아래 형식 자주 쓰이므로 외우기!
 				for(int row=0; row< height; row++) {
@@ -64,20 +68,25 @@ Mat DcmToMat(const char *path){
 }
 
 
-vector<string> get_files_in_floder(str_t folder, str_t file_type){
+vector<string> get_files_in_floder(TCHAR *folder){
 	vector<string> names;
 	//wchar_t search_path[200];
 	//wsprintf(search_path, L"%s/%s", folder.c_str(), file_type.c_str());
-	char search_path[200];
-	sprintf(search_path, "%s\\%s\\*.*", folder.c_str(), file_type.c_str());
+	
+	//char search_path[200];
+	//TCHAR search_path[MAX_PATH];
+	
+	//sprintf(search_path, "%s\\%s\\*.*", folder.c_str(), file_type.c_str());
 
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFile(search_path, &fd);
-	if(hFind != INVALID_HANDLE_VALUE){
+	StringCchCat(folder, MAX_PATH, TEXT("*"));
+	HANDLE hFind = FindFirstFile(folder, &fd);
+	cout << hFind << '\n';
+	if(hFind != INVALID_HANDLE_VALUE){ // ==> Q. 여기 if문 안들어가짐...
 		do{
 			//read all (real) files in current folder
 			//, delete '!' read other 2 default folder. and ..
-			if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
+			if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){ // FILE_ATTRIBUTE_ARCHIVE : 파일만 검색
 				names.push_back(fd.cFileName);
 			}
 		}while(::FindNextFile(hFind, &fd));
@@ -103,18 +112,20 @@ void Overlay(Mat &back, Mat front, int rows, int cols){
 
 
 int main(){
-	Mat ori = DcmToMat("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\CT0002.dcm");
-	imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\test.png", ori);
-	/*
-	str_t path = L"C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
-	vector<string> files = get_files_in_floder(path, L"*.dcm");
+	//Mat ori = DcmToMat("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\CT0002.dcm");
+	//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\test.png", ori);
+	
+	TCHAR path[260] = "C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
+	vector<string> files = get_files_in_floder(path);
 	//wcout<<files[0]<<L"\n"<< files.size()<<L"\n"; //==> Breast0002.png, 159
 	
+	//cout<<files.size()<<'\n'; ==> 0..?
+
 	for (auto f : files){
 		//0. Absolute Path setting
 		string f_str, path_str;
 		f_str.assign(f.begin(), f.end()); // wstring(str_t) to string ==> 이제 이거 변환 해줄 필요 없을 듯..?
-		path_str.assign(path.begin(), path.end()); 
+		//path_str.assign(path.begin(), path.end()); 
 
 		string combpath_str = path_str + "\\" + f_str;
 		
@@ -157,6 +168,6 @@ int main(){
 		Overlay(back, front, rows, cols);
 		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f_str, back);
 	}
-	*/
+	
 	return 0;
 }
