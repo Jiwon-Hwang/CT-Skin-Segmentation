@@ -140,15 +140,16 @@ int main(){
 		cout<<combpath_str<<endl;
 		
 		//Mat ori = imread(combpath_str, 0); //2channel
-		Mat ori = DcmToMat(combpath_str.c_str()); // Q. 몇채널?
+		Mat ori = DcmToMat(combpath_str.c_str()); // Q. 몇채널? ==> 1채널! (cout<<ori.channels()<<endl;)
 		int rows = ori.rows;
 		int cols = ori.cols;
 		Mat img_copy = ori.clone();
+		//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\test1.png", img_copy);
 	
 		//1. Bilateral Filtering (noise filtering)
 		Mat filtered;
 		bilateralFilter(img_copy, filtered, -1, 15, 15); //(src, dst, d(필터링 수행할 지름), sigmaColor(색 공간), sigmaSpace(거리 공간))
-
+		
 		//2. Otsu's Thresholding
 		Mat otsu;
 		threshold(filtered, otsu, 0, 255, THRESH_BINARY|THRESH_OTSU); 
@@ -176,7 +177,7 @@ int main(){
 		Mat back = ori3C.clone();  //3 channel
 		Mat front = bitor.clone(); //1 channel
 		Overlay(back, front, rows, cols);
-		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f, back);
+		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f+".png", back);
 	}
 	
 	return 0;
