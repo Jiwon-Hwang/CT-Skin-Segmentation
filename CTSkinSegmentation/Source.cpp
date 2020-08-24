@@ -15,6 +15,7 @@
 #include <strsafe.h>
 #define MAX_PATH 260
 
+
 using namespace std;
 using namespace cv;
 
@@ -117,18 +118,26 @@ int main(){
 	//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\test.png", ori);
 	
 	TCHAR path[MAX_PATH] = "C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
+	string str_path = string(path);
 	vector<string> files = get_files_in_floder(path);
 	//wcout<<files[0]<<L"\n"<< files.size()<<L"\n"; //==> Breast0002.png, 159
 	
-	cout<<files.size()<<'\n'; //==> 0..?
+	cout<<files.size()<<'\n'; //==> 0..? ==> 193!
 
 	for (auto f : files){
 		//0. Absolute Path setting
+		/*
 		string f_str, path_str;
 		f_str.assign(f.begin(), f.end()); // wstring(str_t) to string ==> 이제 이거 변환 해줄 필요 없을 듯..?
-		//path_str.assign(path.begin(), path.end()); 
+		path_str.assign(path.begin(), path.end()); 
+		*/
 
-		string combpath_str = path_str + "\\" + f_str;
+		//cout<<string(path)<<endl; // C:\Users\Ryu\Desktop\180509_SampleData_CT\*.dcm ==> ? get_files_in_floder 이후에 path값 변함...!
+		//cout<<str_path<<endl; // 이게 맞음! (get~ 함수 전에 path값 string으로 저장해놓기)
+		//cout<<f<<endl; // CT0002.dcm
+
+		string combpath_str = str_path + "\\" + f;
+		cout<<combpath_str<<endl;
 		
 		//Mat ori = imread(combpath_str, 0); //2channel
 		Mat ori = DcmToMat(combpath_str.c_str()); // Q. 몇채널?
@@ -167,7 +176,7 @@ int main(){
 		Mat back = ori3C.clone();  //3 channel
 		Mat front = bitor.clone(); //1 channel
 		Overlay(back, front, rows, cols);
-		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f_str, back);
+		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f, back);
 	}
 	
 	return 0;
