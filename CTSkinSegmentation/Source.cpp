@@ -79,14 +79,15 @@ vector<string> get_files_in_floder(TCHAR *folder){
 	//sprintf(search_path, "%s\\%s\\*.*", folder.c_str(), file_type.c_str());
 
 	WIN32_FIND_DATA fd;
-	StringCchCat(folder, MAX_PATH, TEXT("*"));
+	StringCchCat(folder, MAX_PATH, TEXT("\\*.dcm")); // 특정 확장자만 출력
 	HANDLE hFind = FindFirstFile(folder, &fd);
 	cout << hFind << '\n';
 	if(hFind != INVALID_HANDLE_VALUE){ // ==> Q. 여기 if문 안들어가짐...
 		do{
 			//read all (real) files in current folder
 			//, delete '!' read other 2 default folder. and ..
-			if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){ // FILE_ATTRIBUTE_ARCHIVE : 파일만 검색
+			if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)){ // FILE_ATTRIBUTE_ARCHIVE : 파일만 검색 (폴더 제외)
+				cout<<fd.cFileName<<endl; // 여기도 안들어가짐...
 				names.push_back(fd.cFileName);
 			}
 		}while(::FindNextFile(hFind, &fd));
@@ -115,11 +116,11 @@ int main(){
 	//Mat ori = DcmToMat("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\CT0002.dcm");
 	//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\test.png", ori);
 	
-	TCHAR path[260] = "C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
+	TCHAR path[MAX_PATH] = "C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT";
 	vector<string> files = get_files_in_floder(path);
 	//wcout<<files[0]<<L"\n"<< files.size()<<L"\n"; //==> Breast0002.png, 159
 	
-	//cout<<files.size()<<'\n'; ==> 0..?
+	cout<<files.size()<<'\n'; //==> 0..?
 
 	for (auto f : files){
 		//0. Absolute Path setting
