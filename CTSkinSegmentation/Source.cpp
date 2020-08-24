@@ -157,8 +157,8 @@ int main(){
 		//3. Morphology_preprocessing(remove outlines with erode)
 		Mat pre_erode, pre_dilate;
 		Mat mask = getStructuringElement(MORPH_RECT, Size(3,3), Point(1,1));
-		erode(otsu, pre_erode, mask, Point(-1, -1), 6); // 6회이상 반복 시 완전히 사라짐...(0002)
-		dilate(pre_erode, pre_dilate, mask, Point(-1, -1), 6);
+		erode(otsu, pre_erode, mask, Point(-1, -1), 7); // 6회이상 반복 시 완전히 사라짐...(0002) ==> dcm 이미지는 7회이상 해야지 0004번까지 처리 완료!
+		dilate(pre_erode, pre_dilate, mask, Point(-1, -1), 7);
 
 		//4. Floodfill (combine background to select hole in body)
 		Mat hole = pre_dilate.clone();
@@ -173,11 +173,13 @@ int main(){
 		Mat bitor = (pre_dilate | hole_inv);
 
 		//7. overlay
+		/*
 		Mat ori3C = imread(combpath_str);
 		Mat back = ori3C.clone();  //3 channel
 		Mat front = bitor.clone(); //1 channel
 		Overlay(back, front, rows, cols);
-		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f+".png", back);
+		*/
+		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f+".png", bitor);
 	}
 	
 	return 0;
