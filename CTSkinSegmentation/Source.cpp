@@ -101,12 +101,13 @@ vector<string> get_files_in_floder(TCHAR *folder){
 void Overlay(Mat &back, Mat front, int rows, int cols){
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < cols; j++) {
-			if (front.at<uchar>(i, j) == 0) continue;
+			int idx = i*cols*3 + j*3;  // 3 channel indexing
+			if (front.data[i*cols+j] == 0) continue; // front : 1 channel ==> 여기가 마지막 문제였음!! (warning C4715: 'DcmToMat' : not all control paths return a value)
 
 			//linear interpolation
-			back.at<Vec3b>(i, j)[0] = back.at<Vec3b>(i, j)[0] * 0.7 + 255 * 0; //b
-			back.at<Vec3b>(i, j)[1] = back.at<Vec3b>(i, j)[1] * 0.7 + 255 * 0; //g
-			back.at<Vec3b>(i, j)[2] = back.at<Vec3b>(i, j)[2] * 0.7 + 255 * 0.3; //r
+			back.data[idx+0] = uchar(back.data[idx+0] * 0.7 + 255 * 0); //b
+			back.data[idx+1] = uchar(back.data[idx+1] * 0.7 + 255 * 0); //g
+			back.data[idx+2] = uchar(back.data[idx+2] * 0.7 + 255 * 0.3); //r
 		}
 	}
 }
@@ -173,13 +174,14 @@ int main(){
 		Mat bitor = (pre_dilate | hole_inv);
 
 		//7. overlay
-		/*
-		Mat ori3C = imread(combpath_str);
-		Mat back = ori3C.clone();  //3 channel
+		Mat back = ori.clone();  //1 channel
+		Mat back3C;
+		cvtColor(back, back3C, CV_GRAY2BGR); //3 channel
+		//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\ori.png", back);
+		//imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\ori3C.png", back3C); ==> 둘 차이 없음! (1c to 3c)
 		Mat front = bitor.clone(); //1 channel
-		Overlay(back, front, rows, cols);
-		*/
-		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f+".png", bitor);
+		Overlay(back3C, front, rows, cols);
+		imwrite("C:\\Users\\Ryu\\Desktop\\180509_SampleData_CT\\result\\"+f+".png", back3C);
 	}
 	
 	return 0;
