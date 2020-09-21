@@ -1,2 +1,5 @@
 #folder
 3rdparty/
+
+#file
+*.suo
