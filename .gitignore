@@ -3,3 +3,5 @@
 
 #file
 *.suo
+*.db
+*.sdf
